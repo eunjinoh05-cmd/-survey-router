@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>설문으로 이동 중</title>
+</head>
+<body>
+  <p id="status">설문 그룹을 확인하고 있어요. 잠시만 기다려 주세요.</p>
+
+  <script>
+    const API_URL = "https://YOUR-WORKER.workers.dev/assign";
+    const KEY = "surveyGroup_v1";
+
+    const links = {
+      A: "https://8328-ip26iy8m2jr8klibc0vi7-da1d069e.sg2.manus.computer/article/a",
+      B: "https://8328-ip26iy8m2jr8klibc0vi7-da1d069e.sg2.manus.computer/article/b",
+      C: "https://8328-ip26iy8m2jr8klibc0vi7-da1d069e.sg2.manus.computer/article/c"
+    };
+
+    async function start() {
+      const saved = localStorage.getItem(KEY);
+
+      if (links[saved]) {
+        location.replace(links[saved]);
+        return;
+      }
+
+      try {
+        const response = await fetch(API_URL, { cache: "no-store" });
+        const result = await response.json();
+
+        if (!response.ok || !links[result.group]) {
+          throw new Error();
+        }
+
+        localStorage.setItem(KEY, result.group);
+        location.replace(links[result.group]);
+      } catch {
+        document.getElementById("status").textContent =
+          "설문 연결을 준비 중이에요. 잠시 후 다시 와 주세요.";
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
